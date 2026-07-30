@@ -9,7 +9,7 @@ export function PriceBadge({ priceStatus }: { priceStatus: PriceStatus }) {
   }
   return (
     <span className="text-xs border border-invent-yellow text-invent-yellow rounded-full px-2 py-0.5">
-      Price unknown
+      ⚠ Price unknown
     </span>
   );
 }
