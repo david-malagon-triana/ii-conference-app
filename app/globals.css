@@ -1,26 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --invent-dark-blue: #121A38;
+  --invent-blue: #0058AB;
+  --invent-light-blue: #1DB8F2;
+  --invent-turquoise: #00D5D0;
+  --invent-yellow: #FEB100;
+  --invent-orange: #FF816E;
+  --invent-grey1: #F3F4F7;
+  --invent-grey4: #ADB8C2;
+  --tier-fundamentals: #7DD5F5;
+  --tier-basics: #1DB8F2;
+  --tier-advanced: #0058AB;
+  --tier-expert: #121A38;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-invent-dark-blue: var(--invent-dark-blue);
+  --color-invent-blue: var(--invent-blue);
+  --color-invent-light-blue: var(--invent-light-blue);
+  --color-invent-turquoise: var(--invent-turquoise);
+  --color-invent-yellow: var(--invent-yellow);
+  --color-invent-orange: var(--invent-orange);
+  --color-invent-grey1: var(--invent-grey1);
+  --color-invent-grey4: var(--invent-grey4);
+  --color-tier-fundamentals: var(--tier-fundamentals);
+  --color-tier-basics: var(--tier-basics);
+  --color-tier-advanced: var(--tier-advanced);
+  --color-tier-expert: var(--tier-expert);
+  --font-sans: Ubuntu, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-invent-dark-blue text-invent-grey1 font-sans font-light;
 }
