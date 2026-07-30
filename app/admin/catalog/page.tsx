@@ -7,7 +7,16 @@ export default function CatalogModerationPage() {
   const [error, setError] = useState('');
 
   function load() {
-    fetch('/api/catalog').then((r) => r.json()).then((d) => setItems(d.items));
+    const passcode = (window as any).__ADMIN_PASSCODE__ ?? '';
+    fetch(`/api/admin/catalog?passcode=${encodeURIComponent(passcode)}`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? 'Failed to load catalog');
+          return;
+        }
+        setItems(data.items);
+      });
   }
   useEffect(load, []);
 
@@ -30,19 +39,21 @@ export default function CatalogModerationPage() {
     <div>
       <p className="text-base font-normal mb-3">Catalog moderation</p>
       <p className="text-xs text-invent-grey4 mb-3">
-        Only currently active items are listed here (matching what appears in /api/catalog). Hiding an item
-        removes it from that list; there is no separate view of already-hidden items in this panel.
+        Lists every catalog item, active and hidden, so hidden items can be unhidden here.
       </p>
       <p className="text-xs text-invent-orange mb-3 h-4">{error}</p>
       {items.map((item) => (
         <div key={item.id} className="flex justify-between items-center text-sm border-b border-slate-700 py-2">
-          <span>{item.title} — {item.tier} — {item.priceStatus}</span>
+          <span>
+            {item.title} — {item.tier} — {item.priceStatus}
+            {!item.active && <span className="text-invent-orange"> — hidden</span>}
+          </span>
           <button onClick={() => toggleActive(item.id, item.active)} className="text-xs border rounded px-2 py-1">
             {item.active ? 'Hide' : 'Unhide'}
           </button>
         </div>
       ))}
-      {items.length === 0 && <p className="text-sm text-invent-grey4">No active items.</p>}
+      {items.length === 0 && <p className="text-sm text-invent-grey4">No catalog items.</p>}
     </div>
   );
 }
