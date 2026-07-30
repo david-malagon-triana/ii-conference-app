@@ -8,6 +8,7 @@ export interface FilterValues {
   tier: Tier | '';
   format: ItemFormat | '';
   type: ItemType | '';
+  dateRange: '' | '7' | '30' | '90';
 }
 
 export function FilterBar({
@@ -56,6 +57,27 @@ export function FilterBar({
         <option value="">Format: All</option>
         <option value="ONLINE">Online</option>
         <option value="PHYSICAL">Physical</option>
+      </select>
+      <select
+        value={values.type}
+        onChange={(e) => onChange({ ...values, type: e.target.value as ItemType | '' })}
+        className="text-sm bg-invent-dark-blue border border-slate-700 rounded px-2 py-1"
+      >
+        <option value="">Type: All</option>
+        <option value="COURSE">Course</option>
+        <option value="WEBINAR">Webinar</option>
+        <option value="SEMINAR">Seminar</option>
+        <option value="EVENT">Event</option>
+      </select>
+      <select
+        value={values.dateRange}
+        onChange={(e) => onChange({ ...values, dateRange: e.target.value as '' | '7' | '30' | '90' })}
+        className="text-sm bg-invent-dark-blue border border-slate-700 rounded px-2 py-1"
+      >
+        <option value="">Any date</option>
+        <option value="7">Next 7 days</option>
+        <option value="30">Next 30 days</option>
+        <option value="90">Next 90 days</option>
       </select>
     </div>
   );

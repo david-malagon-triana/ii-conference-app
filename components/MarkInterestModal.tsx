@@ -14,22 +14,33 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
   const requiresPm = item.priceStatus !== 'FREE';
 
   async function submit() {
+    if (requiresPm && (!pmName.trim() || !pmEmail.trim())) {
+      setErrorMessage("Your PM's name and email are required");
+      setStatus('error');
+      return;
+    }
+
     setStatus('sending');
-    const res = await fetch('/api/interest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        itemId: item.id,
-        employeeName,
-        employeeEmail,
-        ...(requiresPm ? { pmName, pmEmail } : {}),
-      }),
-    });
-    if (res.ok) {
-      setStatus('done');
-    } else {
-      const body = await res.json();
-      setErrorMessage(body.error ?? 'Something went wrong');
+    try {
+      const res = await fetch('/api/interest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: item.id,
+          employeeName,
+          employeeEmail,
+          ...(requiresPm ? { pmName, pmEmail } : {}),
+        }),
+      });
+      if (res.ok) {
+        setStatus('done');
+      } else {
+        const body = await res.json();
+        setErrorMessage(body.error ?? 'Something went wrong');
+        setStatus('error');
+      }
+    } catch {
+      setErrorMessage("Couldn't reach the server. Try again.");
       setStatus('error');
     }
   }

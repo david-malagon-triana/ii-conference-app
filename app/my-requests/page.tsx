@@ -5,11 +5,24 @@ import { useState } from 'react';
 export default function MyRequestsPage() {
   const [email, setEmail] = useState('');
   const [results, setResults] = useState<any[] | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   async function lookup() {
-    const res = await fetch(`/api/my-requests?email=${encodeURIComponent(email)}`);
-    const data = await res.json();
-    setResults(data.items);
+    setErrorMessage('');
+    try {
+      const res = await fetch(`/api/my-requests?email=${encodeURIComponent(email)}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setResults(null);
+        setErrorMessage(body.error ?? 'Something went wrong');
+        return;
+      }
+      const data = await res.json();
+      setResults(data.items);
+    } catch {
+      setResults(null);
+      setErrorMessage("Couldn't reach the server. Try again.");
+    }
   }
 
   return (
@@ -26,6 +39,7 @@ export default function MyRequestsPage() {
           Look up
         </button>
       </div>
+      {errorMessage && <p className="text-xs text-red-600 mb-2">{errorMessage}</p>}
       {results?.map(({ request, item }) => (
         <div key={request.id} className="border border-slate-700 rounded-lg p-3 mb-2 text-sm">
           <p>{item?.title ?? 'Item no longer in catalog'}</p>

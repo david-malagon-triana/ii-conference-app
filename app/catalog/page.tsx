@@ -15,6 +15,7 @@ export default function CatalogPage() {
     tier: '',
     format: '',
     type: '',
+    dateRange: '',
   });
 
   useEffect(() => {
@@ -24,6 +25,13 @@ export default function CatalogPage() {
     if (values.tier) params.set('tier', values.tier);
     if (values.format) params.set('format', values.format);
     if (values.type) params.set('type', values.type);
+    if (values.dateRange) {
+      const days = parseInt(values.dateRange, 10);
+      const dateFrom = new Date();
+      const dateTo = new Date(Date.now() + days * 86400000);
+      params.set('dateFrom', dateFrom.toISOString());
+      params.set('dateTo', dateTo.toISOString());
+    }
 
     fetch(`/api/catalog?${params.toString()}`)
       .then((res) => res.json())
