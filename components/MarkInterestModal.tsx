@@ -48,7 +48,7 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
   return (
     <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-50">
       <div className="bg-invent-grey1 text-invent-dark-blue rounded-xl p-5 w-72">
-        <p className="text-sm font-normal mb-1">Mark interest</p>
+        <p className="font-serif text-base mb-1">Mark interest</p>
         <p className="text-xs text-slate-600 mb-3">{item.title}</p>
 
         {status === 'done' ? (
@@ -91,13 +91,16 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
             )}
             {status === 'error' && <p className="text-xs text-red-600 mb-2">{errorMessage}</p>}
             <div className="flex gap-2">
-              <button onClick={onClose} className="flex-1 border rounded py-1.5 text-sm">
+              <button
+                onClick={onClose}
+                className="flex-1 border rounded py-1.5 text-sm transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
+              >
                 Cancel
               </button>
               <button
                 onClick={submit}
                 disabled={status === 'sending'}
-                className="flex-1 bg-invent-blue text-invent-grey1 rounded py-1.5 text-sm"
+                className="flex-1 rounded py-1.5 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 disabled:hover:brightness-100"
               >
                 {requiresPm ? 'Notify PM' : 'Confirm'}
               </button>
@@ -105,7 +108,11 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
           </>
         )}
         {/* Always available: after a successful submission this is the only way out of the modal. */}
-        <button onClick={onClose} className="text-xs text-slate-500 mt-2 block" aria-label="Close">
+        <button
+          onClick={onClose}
+          className="text-xs text-slate-500 mt-2 block transition-colors duration-180 hover:text-invent-grey1"
+          aria-label="Close"
+        >
           &times;
         </button>
       </div>
