@@ -27,7 +27,7 @@ export default function MyRequestsPage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">My requests</p>
+      <p className="font-serif text-xl mb-3">My requests</p>
       <div className="flex gap-2 mb-4">
         <input
           value={email}
@@ -35,7 +35,10 @@ export default function MyRequestsPage() {
           placeholder="name@capgemini.com"
           className="text-sm bg-transparent border border-slate-700 rounded px-2 py-1 flex-1"
         />
-        <button onClick={lookup} className="text-sm border border-invent-blue rounded px-3 py-1">
+        <button
+          onClick={lookup}
+          className="text-sm rounded px-3 py-1 text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
+        >
           Look up
         </button>
       </div>
