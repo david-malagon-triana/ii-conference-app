@@ -18,7 +18,7 @@ export function ItemCard({ item }: { item: DiscoveredItemRow }) {
       )}
       <p className="text-xs text-invent-grey4 mb-1">
         {item.startDate ?? 'Date not found — check the official link'}
-        {item.startDate && (item.location ? ` · ${item.location}` : item.format === 'ONLINE' ? ' · Online' : '')}
+        {item.location ? ` · ${item.location}` : item.format === 'ONLINE' ? ' · Online' : ''}
       </p>
       <p className="text-xs text-invent-grey4 mb-2">
         {item.duration ?? 'Duration not specified'}

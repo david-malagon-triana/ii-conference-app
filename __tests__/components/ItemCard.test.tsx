@@ -28,7 +28,7 @@ describe('ItemCard', () => {
 
   it('shows the null-startDate fallback text', () => {
     render(<ItemCard item={item({ startDate: null })} />);
-    expect(screen.getByText('Date not found — check the official link')).toBeInTheDocument();
+    expect(screen.getByText(/Date not found — check the official link/)).toBeInTheDocument();
   });
 
   it('shows the null-duration fallback text', () => {
