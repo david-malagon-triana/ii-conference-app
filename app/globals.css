@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&family=Playfair+Display:wght@500&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -10,10 +10,12 @@
   --invent-orange: #FF816E;
   --invent-grey1: #F3F4F7;
   --invent-grey4: #ADB8C2;
-  --tier-fundamentals: #7DD5F5;
+  --tier-fundamentals: #B8E8FB;
   --tier-basics: #1DB8F2;
   --tier-advanced: #0058AB;
-  --tier-expert: #121A38;
+  --tier-expert: #04122B;
+  --tier-text-dark: #04283D;
+  --tier-expert-border: #7DD5F5;
 }
 
 @theme inline {
@@ -29,9 +31,21 @@
   --color-tier-basics: var(--tier-basics);
   --color-tier-advanced: var(--tier-advanced);
   --color-tier-expert: var(--tier-expert);
+  --color-tier-text-dark: var(--tier-text-dark);
+  --color-tier-expert-border: var(--tier-expert-border);
   --font-sans: Ubuntu, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
 }
 
 body {
   @apply bg-invent-dark-blue text-invent-grey1 font-sans font-light;
+}
+
+.ii-card-hover {
+  transition: transform 180ms ease-out, box-shadow 220ms ease-out, border-color 180ms ease-out;
+}
+.ii-card-hover:hover {
+  transform: translateY(-5px);
+  border-color: transparent;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4), 0 0 0 1.5px var(--invent-light-blue), 0 0 22px rgba(0, 213, 208, 0.2);
 }
