@@ -8,10 +8,10 @@ const TIER_LABELS: Record<Tier, string> = {
 };
 
 const TIER_CLASSES: Record<Tier, string> = {
-  FUNDAMENTALS: 'bg-tier-fundamentals text-invent-dark-blue',
-  BASICS: 'bg-tier-basics text-invent-dark-blue',
+  FUNDAMENTALS: 'bg-tier-fundamentals text-tier-text-dark',
+  BASICS: 'bg-tier-basics text-tier-text-dark',
   ADVANCED: 'bg-tier-advanced text-invent-grey1',
-  EXPERT: 'bg-tier-expert text-invent-grey1 border border-invent-grey1',
+  EXPERT: 'bg-tier-expert text-invent-grey1 border border-tier-expert-border',
 };
 
 export function TierBadge({ tier }: { tier: Tier }) {
