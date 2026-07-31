@@ -16,12 +16,15 @@ export default async function HomePage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-4">This week&apos;s picks</p>
+      <p className="font-serif text-xl mb-4">This week&apos;s picks</p>
       {rows.map(({ topic, items }) => (
         <div key={topic.id} className="mb-6">
           <div className="flex justify-between items-baseline mb-2">
             <span className="text-sm text-invent-grey4">{topic.name}</span>
-            <a href={`/catalog?topicId=${topic.id}`} className="text-xs text-invent-blue">
+            <a
+              href={`/catalog?topicId=${topic.id}`}
+              className="text-xs text-invent-blue border-b border-transparent pb-0.5 transition-colors duration-180 hover:text-invent-light-blue hover:border-invent-light-blue"
+            >
               See all &rarr;
             </a>
           </div>
