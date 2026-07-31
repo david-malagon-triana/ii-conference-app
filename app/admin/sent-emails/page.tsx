@@ -32,7 +32,7 @@ export default function SentEmailsPage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">Sent emails log</p>
+      <p className="font-serif text-xl mb-3">Sent emails log</p>
       <p className="text-xs text-invent-grey4 mb-3">
         Every simulated PM notification, reminder, and system alert appears here once the corresponding
         action has been triggered.

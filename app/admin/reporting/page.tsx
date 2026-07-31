@@ -37,9 +37,9 @@ export default function ReportingPage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">Reporting</p>
+      <p className="font-serif text-xl mb-3">Reporting</p>
 
-      <p className="text-sm font-normal mb-1">Interest by topic</p>
+      <p className="font-serif text-sm mb-1">Interest by topic</p>
       {interestTopicIds.length === 0 && <p className="text-xs text-invent-grey4 mb-3">No interest requests yet.</p>}
       {interestTopicIds.length > 0 && (
         <div className="mb-3">
@@ -61,7 +61,7 @@ export default function ReportingPage() {
 
       <p className="text-sm mb-3">PM-notified count: {stats.pmNotifiedCount}</p>
 
-      <p className="text-sm font-normal mb-1">Catalog growth by day</p>
+      <p className="font-serif text-sm mb-1">Catalog growth by day</p>
       {growthDays.length === 0 && <p className="text-xs text-invent-grey4">No catalog items yet.</p>}
       {growthDays.map((day) => (
         <p key={day} className="text-sm">
