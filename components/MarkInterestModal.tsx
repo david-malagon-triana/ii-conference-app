@@ -100,7 +100,7 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
               <button
                 onClick={submit}
                 disabled={status === 'sending'}
-                className="flex-1 rounded py-1.5 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 disabled:hover:brightness-100"
+                className="flex-1 rounded py-1.5 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100 disabled:hover:brightness-100 disabled:hover:saturate-100"
               >
                 {requiresPm ? 'Notify PM' : 'Confirm'}
               </button>
