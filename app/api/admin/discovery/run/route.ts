@@ -4,7 +4,9 @@ import { getWorkbookPath } from '@/lib/workbookPath';
 import { checkPasscode } from '@/lib/admin/auth';
 import { runDiscoveryAndAlert } from '@/lib/discovery/discoveryJob';
 
-/** SearchRun history, newest first, for the admin discovery-control screen. */
+const HISTORY_LIMIT = 50;
+
+/** SearchRun history, newest first and capped to the most recent HISTORY_LIMIT, for the admin discovery-control screen. */
 export async function GET(request: NextRequest) {
   const passcode = request.nextUrl.searchParams.get('passcode') ?? '';
   const wb = await loadWorkbook(getWorkbookPath());
@@ -13,10 +15,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid passcode' }, { status: 401 });
   }
 
-  const runs = [...wb.searchRuns].sort((a, b) => b.ranAt.localeCompare(a.ranAt));
+  const sorted = [...wb.searchRuns].sort((a, b) => b.ranAt.localeCompare(a.ranAt));
+  const runs = sorted.slice(0, HISTORY_LIMIT);
+  const truncated = sorted.length > HISTORY_LIMIT;
   const topicNames = Object.fromEntries(wb.topics.map((t) => [t.id, t.name]));
 
-  return NextResponse.json({ runs, topicNames });
+  return NextResponse.json({ runs, topicNames, truncated });
 }
 
 export async function POST(request: NextRequest) {

@@ -8,6 +8,7 @@ export default function DiscoveryPage() {
   const [reminderResult, setReminderResult] = useState<string>('');
   const [runs, setRuns] = useState<SearchRunRow[]>([]);
   const [topicNames, setTopicNames] = useState<Record<string, string>>({});
+  const [truncated, setTruncated] = useState(false);
   const [scheduleTime, setScheduleTime] = useState('');
   const [scheduleStatus, setScheduleStatus] = useState('');
   const [error, setError] = useState('');
@@ -25,6 +26,7 @@ export default function DiscoveryPage() {
       }
       setRuns(data.runs);
       setTopicNames(data.topicNames ?? {});
+      setTruncated(Boolean(data.truncated));
     });
   }
 
@@ -128,6 +130,9 @@ export default function DiscoveryPage() {
       <p className="text-sm mb-4">{reminderResult}</p>
 
       <p className="text-sm font-normal mb-2">Run history</p>
+      {truncated && (
+        <p className="text-xs text-invent-grey4 mb-2">Showing most recent 50 runs.</p>
+      )}
       {runs.length === 0 && <p className="text-sm text-invent-grey4">No discovery runs logged yet.</p>}
       {runs.map((run) => (
         <div key={run.id} className="text-xs border-b border-slate-700 py-1.5">
