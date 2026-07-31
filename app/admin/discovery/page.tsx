@@ -97,10 +97,13 @@ export default function DiscoveryPage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">Discovery control</p>
+      <p className="font-serif text-xl mb-3">Discovery control</p>
       <p className="text-xs text-invent-orange mb-3 h-4">{error}</p>
 
-      <button onClick={runNow} className="border border-invent-blue rounded px-3 py-1 text-sm mb-1">
+      <button
+        onClick={runNow}
+        className="rounded px-3 py-1 text-sm mb-1 text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
+      >
         Run discovery now
       </button>
       <p className="text-sm mb-4">{result}</p>
@@ -115,7 +118,10 @@ export default function DiscoveryPage() {
           placeholder="0 6 * * *"
           className="border rounded px-2 py-1 text-sm bg-transparent"
         />
-        <button onClick={saveSchedule} className="border rounded px-2 py-1 text-sm">
+        <button
+          onClick={saveSchedule}
+          className="rounded px-2 py-1 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
+        >
           Save
         </button>
         {scheduleStatus && <span className="text-xs text-invent-turquoise self-center">{scheduleStatus}</span>}
@@ -124,12 +130,15 @@ export default function DiscoveryPage() {
         Only the hour is used by the in-process scheduler, compared against UTC.
       </p>
 
-      <button onClick={runReminders} className="border border-invent-blue rounded px-3 py-1 text-sm mb-1">
+      <button
+        onClick={runReminders}
+        className="rounded px-3 py-1 text-sm mb-1 text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
+      >
         Send due reminders now
       </button>
       <p className="text-sm mb-4">{reminderResult}</p>
 
-      <p className="text-sm font-normal mb-2">Run history</p>
+      <p className="font-serif text-base mb-2">Run history</p>
       {truncated && (
         <p className="text-xs text-invent-grey4 mb-2">Showing most recent 50 runs.</p>
       )}
