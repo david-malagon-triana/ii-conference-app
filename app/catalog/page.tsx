@@ -1,11 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ItemCard } from '@/components/ItemCard';
 import { FilterBar, FilterValues } from '@/components/FilterBar';
 
+// `useSearchParams()` forces a client-side bailout during prerendering, so the component that
+// reads it must sit under a Suspense boundary or `next build` fails on this route.
 export default function CatalogPage() {
+  return (
+    <Suspense fallback={<p className="text-invent-grey4 text-sm">Loading catalog...</p>}>
+      <CatalogContent />
+    </Suspense>
+  );
+}
+
+function CatalogContent() {
   const searchParams = useSearchParams();
   const [items, setItems] = useState<any[]>([]);
   const [topics, setTopics] = useState<any[]>([]);

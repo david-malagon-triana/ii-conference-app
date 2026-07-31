@@ -104,11 +104,10 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
             </div>
           </>
         )}
-        {status !== 'done' && (
-          <button onClick={onClose} className="text-xs text-slate-500 mt-2 block" aria-label="Close">
-            &times;
-          </button>
-        )}
+        {/* Always available: after a successful submission this is the only way out of the modal. */}
+        <button onClick={onClose} className="text-xs text-slate-500 mt-2 block" aria-label="Close">
+          &times;
+        </button>
       </div>
     </div>
   );

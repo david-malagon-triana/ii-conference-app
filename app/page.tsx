@@ -1,20 +1,22 @@
-async function getTopPicks() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'}/api/catalog`, {
-    cache: 'no-store',
-  });
-  const { items, topics } = await res.json();
-  const { topPicksByTopic } = await import('@/lib/ranking');
-  return topPicksByTopic(items, topics, 3);
-}
-
+import { loadWorkbook } from '@/lib/workbook/store';
+import { getWorkbookPath } from '@/lib/workbookPath';
+import { topPicksByTopic } from '@/lib/ranking';
 import { ItemCard } from '@/components/ItemCard';
 
+// The workbook is read at request time, so this page must never be statically prerendered
+// at build time (when the workbook may not exist yet).
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  const rows = await getTopPicks();
+  // Read the workbook directly rather than self-fetching our own /api/catalog over HTTP:
+  // a server component calling back into its own origin needs a hardcoded base URL, breaks
+  // when the dev port differs, and adds a pointless round-trip.
+  const wb = await loadWorkbook(getWorkbookPath());
+  const rows = topPicksByTopic(wb.discoveredItems, wb.topics, 3);
 
   return (
     <div>
-      <p className="text-base font-normal mb-4">This week's picks</p>
+      <p className="text-base font-normal mb-4">This week&apos;s picks</p>
       {rows.map(({ topic, items }) => (
         <div key={topic.id} className="mb-6">
           <div className="flex justify-between items-baseline mb-2">
@@ -24,7 +26,7 @@ export default async function HomePage() {
             </a>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            {items.map((item: any) => (
+            {items.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}
           </div>
@@ -32,7 +34,7 @@ export default async function HomePage() {
       ))}
       {rows.length === 0 && (
         <p className="text-invent-grey4 text-sm">
-          No picks yet — the daily discovery run hasn't found anything, or hasn't run yet.
+          No picks yet — the daily discovery run hasn&apos;t found anything, or hasn&apos;t run yet.
         </p>
       )}
     </div>
