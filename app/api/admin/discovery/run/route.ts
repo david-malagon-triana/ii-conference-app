@@ -1,23 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withWorkbook } from '@/lib/workbook/store';
+import { loadWorkbook } from '@/lib/workbook/store';
 import { getWorkbookPath } from '@/lib/workbookPath';
 import { checkPasscode } from '@/lib/admin/auth';
-import { runDailyDiscovery } from '@/lib/discovery/runDiscovery';
-import { searchGoogle } from '@/lib/discovery/googleSearchProvider';
+import { runDiscoveryAndAlert } from '@/lib/discovery/discoveryJob';
+
+/** SearchRun history, newest first, for the admin discovery-control screen. */
+export async function GET(request: NextRequest) {
+  const passcode = request.nextUrl.searchParams.get('passcode') ?? '';
+  const wb = await loadWorkbook(getWorkbookPath());
+
+  if (!checkPasscode(wb, passcode)) {
+    return NextResponse.json({ error: 'Invalid passcode' }, { status: 401 });
+  }
+
+  const runs = [...wb.searchRuns].sort((a, b) => b.ranAt.localeCompare(a.ranAt));
+  const topicNames = Object.fromEntries(wb.topics.map((t) => [t.id, t.name]));
+
+  return NextResponse.json({ runs, topicNames });
+}
 
 export async function POST(request: NextRequest) {
   const { passcode } = await request.json();
 
-  const result = await withWorkbook(getWorkbookPath(), async (wb) => {
-    if (!checkPasscode(wb, passcode)) return { unauthorized: true } as const;
-    const apiKey = process.env.GOOGLE_CSE_API_KEY ?? '';
-    const cseId = process.env.GOOGLE_CSE_ID ?? '';
-    const { alerts } = await runDailyDiscovery(wb, (topic) => searchGoogle(topic, { apiKey, cseId }), new Date());
-    return { unauthorized: false, alerts } as const;
-  });
-
-  if (result.unauthorized) {
+  // Passcode check is a plain read — deliberately not wrapped in `withWorkbook`, so the
+  // subsequent network I/O in `runDiscoveryAndAlert` never happens under the write lock.
+  const wb = await loadWorkbook(getWorkbookPath());
+  if (!checkPasscode(wb, passcode)) {
     return NextResponse.json({ error: 'Invalid passcode' }, { status: 401 });
   }
-  return NextResponse.json({ alerts: result.alerts });
+
+  const { alerts, alertEmailConfigured } = await runDiscoveryAndAlert();
+
+  return NextResponse.json({ alerts, alertEmailConfigured });
 }
