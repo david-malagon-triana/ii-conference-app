@@ -13,9 +13,9 @@ function item(): DiscoveredItemRow {
 }
 
 describe('applyCatalogUpdates', () => {
-  it('applies the whitelisted editable fields', () => {
+  it('applies the whitelisted editable fields when all are valid', () => {
     const target = item();
-    const applied = applyCatalogUpdates(target, {
+    const { applied, rejected } = applyCatalogUpdates(target, {
       title: 'Corrected title',
       description: 'Corrected description',
       tier: 'ADVANCED',
@@ -27,6 +27,7 @@ describe('applyCatalogUpdates', () => {
       active: false,
     });
 
+    expect(rejected).toEqual([]);
     expect(applied.sort()).toEqual([...EDITABLE_CATALOG_FIELDS].sort());
     expect(target.title).toBe('Corrected title');
     expect(target.tier).toBe('ADVANCED');
@@ -40,7 +41,7 @@ describe('applyCatalogUpdates', () => {
 
   it('ignores non-whitelisted fields instead of mass-assigning them', () => {
     const target = item();
-    const applied = applyCatalogUpdates(target, {
+    const { applied, rejected } = applyCatalogUpdates(target, {
       id: 'hijacked',
       topicIds: 't9',
       relevanceScore: 99,
@@ -55,38 +56,51 @@ describe('applyCatalogUpdates', () => {
       tier: 'EXPERT',
     });
 
+    expect(rejected).toEqual([]);
     expect(applied).toEqual(['tier']);
     expect(target.id).toBe('i1');
     expect(target.topicIds).toBe('t1');
     expect(target.relevanceScore).toBe(0.5);
-    expect(target.discoveredAt).toBe('2026-08-01T00:00:00.000Z');
-    expect(target.sourceQuery).toBe('Gen AI');
-    expect(target.url).toBe('https://example.com/1');
-    expect(target.provider).toBe('Example Org');
-    expect(target.type).toBe('WEBINAR');
-    expect(target.format).toBe('ONLINE');
     expect(target.tier).toBe('EXPERT');
   });
 
-  it('rejects invalid enum values and wrongly typed values', () => {
+  it('rejects the whole update and names every invalid field when any field is invalid', () => {
     const target = item();
-    applyCatalogUpdates(target, {
+    const { applied, rejected } = applyCatalogUpdates(target, {
       tier: 'SUPER_EXPERT',
       priceStatus: 'CHEAP',
       active: 'false',
       title: 42,
     });
 
+    expect(applied).toEqual([]);
+    expect(rejected.sort()).toEqual(['active', 'priceStatus', 'tier', 'title']);
     expect(target.tier).toBe('FUNDAMENTALS');
     expect(target.priceStatus).toBe('FREE');
     expect(target.active).toBe(true);
     expect(target.title).toBe('Gen AI Strategy webinar');
   });
 
+  it('rejects the whole update even when only one field out of several is invalid — no partial save', () => {
+    const target = item();
+    const { applied, rejected } = applyCatalogUpdates(target, {
+      title: 'This should NOT be saved',
+      description: 'Neither should this',
+      tier: 'NOT_A_REAL_TIER',
+    });
+
+    expect(applied).toEqual([]);
+    expect(rejected).toEqual(['tier']);
+    expect(target.title).toBe('Gen AI Strategy webinar');
+    expect(target.description).toBe('A free introduction');
+    expect(target.tier).toBe('FUNDAMENTALS');
+  });
+
   it('normalizes blank nullable fields to null and keeps blank plain strings as ""', () => {
     const target = item();
-    applyCatalogUpdates(target, { startDate: '', duration: '   ', endDate: null, location: '' });
+    const { rejected } = applyCatalogUpdates(target, { startDate: '', duration: '   ', endDate: null, location: '' });
 
+    expect(rejected).toEqual([]);
     expect(target.startDate).toBeNull();
     expect(target.duration).toBeNull();
     expect(target.endDate).toBeNull();
@@ -95,9 +109,9 @@ describe('applyCatalogUpdates', () => {
 
   it('is a no-op for a missing or non-object payload', () => {
     const target = item();
-    expect(applyCatalogUpdates(target, undefined)).toEqual([]);
-    expect(applyCatalogUpdates(target, null)).toEqual([]);
-    expect(applyCatalogUpdates(target, 'nope')).toEqual([]);
+    expect(applyCatalogUpdates(target, undefined)).toEqual({ applied: [], rejected: [] });
+    expect(applyCatalogUpdates(target, null)).toEqual({ applied: [], rejected: [] });
+    expect(applyCatalogUpdates(target, 'nope')).toEqual({ applied: [], rejected: [] });
     expect(target).toEqual(item());
   });
 });

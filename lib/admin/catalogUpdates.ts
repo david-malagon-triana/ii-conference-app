@@ -30,68 +30,97 @@ const FORMATS: ItemFormat[] = ['ONLINE', 'PHYSICAL'];
 export { TIERS, PRICE_STATUSES, TYPES, FORMATS };
 
 /**
- * Applies only whitelisted, well-typed fields from `updates` onto `item`, in place.
- * Returns the names of the fields that were actually applied.
+ * Validates every whitelisted field present in `updates`, then applies them to `item` only if
+ * ALL of them are valid — an all-or-nothing update. If any field fails validation, `item` is left
+ * completely untouched and `rejected` names every field that failed, so the caller can reject the
+ * whole request (400) instead of silently saving a partial edit.
  */
-export function applyCatalogUpdates(item: DiscoveredItemRow, updates: unknown): EditableCatalogField[] {
-  if (!updates || typeof updates !== 'object') return [];
+export function applyCatalogUpdates(
+  item: DiscoveredItemRow,
+  updates: unknown,
+): { applied: EditableCatalogField[]; rejected: string[] } {
+  if (!updates || typeof updates !== 'object') return { applied: [], rejected: [] };
   const source = updates as Record<string, unknown>;
-  const applied: EditableCatalogField[] = [];
+  const rejected: string[] = [];
+  const normalized: Partial<Record<EditableCatalogField, string | boolean | null>> = {};
 
   for (const field of EDITABLE_CATALOG_FIELDS) {
     if (!Object.prototype.hasOwnProperty.call(source, field)) continue;
     const raw = source[field];
 
     if (field === 'active') {
-      if (typeof raw !== 'boolean') continue;
-      item.active = raw;
-      applied.push(field);
+      if (typeof raw !== 'boolean') {
+        rejected.push(field);
+        continue;
+      }
+      normalized.active = raw;
       continue;
     }
 
     if (field === 'tier') {
-      if (!TIERS.includes(raw as Tier)) continue;
-      item.tier = raw as Tier;
-      applied.push(field);
+      if (!TIERS.includes(raw as Tier)) {
+        rejected.push(field);
+        continue;
+      }
+      normalized.tier = raw as Tier;
       continue;
     }
 
     if (field === 'priceStatus') {
-      if (!PRICE_STATUSES.includes(raw as PriceStatus)) continue;
-      item.priceStatus = raw as PriceStatus;
-      applied.push(field);
+      if (!PRICE_STATUSES.includes(raw as PriceStatus)) {
+        rejected.push(field);
+        continue;
+      }
+      normalized.priceStatus = raw as PriceStatus;
       continue;
     }
 
-    if (raw !== null && typeof raw !== 'string') continue;
+    if (raw !== null && typeof raw !== 'string') {
+      rejected.push(field);
+      continue;
+    }
     const value = raw === null ? '' : raw;
-    // Empty means "not specified" for the nullable fields, which the app represents as null.
-    const nullable = NULLABLE_FIELDS.has(field) && value.trim() === '' ? null : value;
+    normalized[field] = NULLABLE_FIELDS.has(field) && value.trim() === '' ? null : value;
+  }
 
+  if (rejected.length > 0) {
+    return { applied: [], rejected };
+  }
+
+  const applied: EditableCatalogField[] = [];
+  for (const field of Object.keys(normalized) as EditableCatalogField[]) {
+    const value = normalized[field];
     switch (field) {
+      case 'active':
+        item.active = value as boolean;
+        break;
+      case 'tier':
+        item.tier = value as Tier;
+        break;
+      case 'priceStatus':
+        item.priceStatus = value as PriceStatus;
+        break;
       case 'title':
-        item.title = value;
+        item.title = value as string;
         break;
       case 'description':
-        item.description = value;
+        item.description = value as string;
         break;
       case 'location':
-        item.location = value;
+        item.location = value as string;
         break;
       case 'startDate':
-        item.startDate = nullable;
+        item.startDate = value as string | null;
         break;
       case 'endDate':
-        item.endDate = nullable;
+        item.endDate = value as string | null;
         break;
       case 'duration':
-        item.duration = nullable;
+        item.duration = value as string | null;
         break;
-      default:
-        continue;
     }
     applied.push(field);
   }
 
-  return applied;
+  return { applied, rejected: [] };
 }

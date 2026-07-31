@@ -2,30 +2,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withWorkbook } from '@/lib/workbook/store';
 import { getWorkbookPath } from '@/lib/workbookPath';
 import { checkPasscode } from '@/lib/admin/auth';
-
-/** Only these topic fields are editable; `id` is never reassignable. */
-const EDITABLE_TOPIC_FIELDS = ['name', 'category', 'keywords'] as const;
+import { applyTopicUpdates } from '@/lib/admin/topicUpdates';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await request.json();
 
   const result = await withWorkbook(getWorkbookPath(), (wb) => {
-    if (!checkPasscode(wb, body.passcode ?? '')) return { unauthorized: true } as const;
-    const topic = wb.topics.find((t) => t.id === id);
-    if (!topic) return { unauthorized: false, notFound: true } as const;
-
-    const updates = (body.updates ?? {}) as Record<string, unknown>;
-    for (const field of EDITABLE_TOPIC_FIELDS) {
-      const value = updates[field];
-      if (typeof value === 'string') topic[field] = value;
+    if (!checkPasscode(wb, body.passcode ?? '')) {
+      return { unauthorized: true, notFound: false, rejected: [] as string[], topic: null };
     }
-
-    return { unauthorized: false, notFound: false, topic } as const;
+    const topic = wb.topics.find((t) => t.id === id);
+    if (!topic) {
+      return { unauthorized: false, notFound: true, rejected: [] as string[], topic: null };
+    }
+    const { rejected } = applyTopicUpdates(topic, body.updates);
+    return { unauthorized: false, notFound: false, rejected, topic: rejected.length === 0 ? topic : null };
   });
 
   if (result.unauthorized) return NextResponse.json({ error: 'Invalid passcode' }, { status: 401 });
   if (result.notFound) return NextResponse.json({ error: 'Topic not found' }, { status: 404 });
+  if (result.rejected.length > 0) {
+    return NextResponse.json(
+      { error: `Invalid value for field(s): ${result.rejected.join(', ')}` },
+      { status: 400 },
+    );
+  }
   return NextResponse.json({ topic: result.topic });
 }
 
