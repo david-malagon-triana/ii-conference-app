@@ -6,6 +6,17 @@ export interface ReportingStats {
   tierDistribution: Record<string, number>;
   pmNotifiedCount: number;
   catalogGrowthByDay: Record<string, number>;
+  topItems: { itemId: string; title: string; count: number }[];
+  uniqueEmployeeCount: number;
+  interestTrendByWeek: Record<string, number>;
+}
+
+function weekStartKey(isoDateString: string): string {
+  const d = new Date(isoDateString);
+  const day = d.getUTCDay(); // 0 (Sun) .. 6 (Sat)
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + diffToMonday));
+  return monday.toISOString().slice(0, 10);
 }
 
 export function computeReportingStats(wb: Workbook): ReportingStats {
@@ -33,5 +44,44 @@ export function computeReportingStats(wb: Workbook): ReportingStats {
     catalogGrowthByDay[day] = (catalogGrowthByDay[day] ?? 0) + 1;
   }
 
-  return { interestByTopic, priceSplit, tierDistribution, pmNotifiedCount, catalogGrowthByDay };
+  const interestCountByItem: Record<string, number> = {};
+  for (const request of wb.interestRequests) {
+    interestCountByItem[request.itemId] = (interestCountByItem[request.itemId] ?? 0) + 1;
+  }
+  const topItems = wb.discoveredItems
+    .map((item) => ({
+      itemId: item.id,
+      title: item.title,
+      count: interestCountByItem[item.id] ?? 0,
+      discoveredAt: item.discoveredAt,
+    }))
+    .filter((entry) => entry.count > 0)
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      if (a.discoveredAt !== b.discoveredAt) return a.discoveredAt < b.discoveredAt ? -1 : 1;
+      return a.itemId < b.itemId ? -1 : a.itemId > b.itemId ? 1 : 0;
+    })
+    .slice(0, 10)
+    .map(({ itemId, title, count }) => ({ itemId, title, count }));
+
+  const uniqueEmployeeCount = new Set(
+    wb.interestRequests.map((r) => r.employeeEmail.trim().toLowerCase()),
+  ).size;
+
+  const interestTrendByWeek: Record<string, number> = {};
+  for (const request of wb.interestRequests) {
+    const week = weekStartKey(request.createdAt);
+    interestTrendByWeek[week] = (interestTrendByWeek[week] ?? 0) + 1;
+  }
+
+  return {
+    interestByTopic,
+    priceSplit,
+    tierDistribution,
+    pmNotifiedCount,
+    catalogGrowthByDay,
+    topItems,
+    uniqueEmployeeCount,
+    interestTrendByWeek,
+  };
 }
