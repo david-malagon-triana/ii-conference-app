@@ -84,12 +84,17 @@ export default function TopicsPage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">Topics</p>
+      <p className="font-serif text-xl mb-3">Topics</p>
       <div className="flex gap-2 mb-2">
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="border rounded px-2 py-1 text-sm bg-transparent" />
         <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="border rounded px-2 py-1 text-sm bg-transparent" />
         <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="Keywords, comma-separated" className="border rounded px-2 py-1 text-sm bg-transparent flex-1" />
-        <button onClick={addTopic} className="border border-invent-blue rounded px-3 py-1 text-sm">Add</button>
+        <button
+          onClick={addTopic}
+          className="rounded px-3 py-1 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
+        >
+          Add
+        </button>
       </div>
       <p className="text-xs text-invent-orange mb-3 h-4">{error}</p>
       {topics.map((t) => (
@@ -102,13 +107,13 @@ export default function TopicsPage() {
             <span className="flex gap-2 shrink-0">
               <button
                 onClick={() => (editingId === t.id ? setEditingId(null) : startEdit(t))}
-                className="text-xs border rounded px-2 py-1"
+                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
               >
                 {editingId === t.id ? 'Close' : 'Edit'}
               </button>
               <button
                 onClick={() => removeTopic(t.id, t.name)}
-                className="text-xs border border-invent-orange text-invent-orange rounded px-2 py-1"
+                className="text-xs border border-invent-orange text-invent-orange rounded px-2 py-1 transition-colors duration-180 hover:bg-invent-orange/10"
               >
                 Remove
               </button>
@@ -135,7 +140,10 @@ export default function TopicsPage() {
                 placeholder="Keywords, comma-separated"
                 className="border rounded px-2 py-1 text-sm bg-transparent flex-1"
               />
-              <button onClick={() => saveEdit(t.id)} className="border border-invent-blue rounded px-3 py-1 text-sm">
+              <button
+                onClick={() => saveEdit(t.id)}
+                className="rounded px-3 py-1 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
+              >
                 Save
               </button>
             </div>
