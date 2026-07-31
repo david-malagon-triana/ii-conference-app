@@ -47,5 +47,7 @@ export function defaultSettings(): SettingRow[] {
     { key: 'discoveryScheduleTime', value: '0 6 * * *' },
     { key: 'systemAlertEmail', value: '' },
     { key: 'adminPasscode', value: 'changeme' },
+    // Written by every discovery run so the daily schedule survives a process restart.
+    { key: 'lastDiscoveryRunAt', value: '' },
   ];
 }

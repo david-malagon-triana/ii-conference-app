@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { runDiscoveryForTopic, runDailyDiscovery } from '../../lib/discovery/runDiscovery';
+import {
+  runDiscoveryForTopic,
+  runDailyDiscovery,
+  fetchDiscoveryCandidates,
+  applyDiscoveryResults,
+} from '../../lib/discovery/runDiscovery';
 import { emptyWorkbook, TopicRow, DiscoveredItemRow } from '../../lib/workbook/types';
 import { RawResult } from '../../lib/discovery/classifier';
 
@@ -93,5 +98,71 @@ describe('runDailyDiscovery', () => {
     expect(wb.discoveredItems).toHaveLength(1);
     expect(wb.searchRuns).toHaveLength(2);
     expect(wb.searchRuns.find((r) => r.topicId === 't1')?.status).toBe('FAILED');
+  });
+});
+
+describe('fetchDiscoveryCandidates / applyDiscoveryResults (two-phase split)', () => {
+  const topics: TopicRow[] = [
+    { id: 't1', name: 'Data Strategy', category: 'Data Strategy', keywords: 'Gen AI' },
+    { id: 't2', name: 'Smart Assets', category: 'Smart Assets', keywords: 'Digital Continuity' },
+  ];
+
+  it('does all searching in the fetch phase and none in the apply phase', async () => {
+    let calls = 0;
+    const searchFn = async (t: TopicRow) => {
+      calls += 1;
+      return [{ title: `${t.name} intro`, url: `https://example.com/${t.id}`, snippet: 'Free intro' }];
+    };
+
+    const outcomes = await fetchDiscoveryCandidates(topics, searchFn);
+    expect(calls).toBe(2);
+    expect(outcomes.map((o) => o.topic.id)).toEqual(['t1', 't2']);
+    expect(outcomes.every((o) => o.error === null)).toBe(true);
+
+    const wb = emptyWorkbook();
+    wb.topics = topics;
+    const { alerts } = applyDiscoveryResults(wb, outcomes, new Date('2026-08-01'));
+
+    // No further search calls once the lock-held phase begins.
+    expect(calls).toBe(2);
+    expect(alerts).toHaveLength(0);
+    expect(wb.discoveredItems).toHaveLength(2);
+    expect(wb.searchRuns).toHaveLength(2);
+  });
+
+  it('captures a per-topic failure in the fetch phase and turns it into a FAILED run plus alert', async () => {
+    const searchFn = async (t: TopicRow) => {
+      if (t.id === 't1') throw new Error('socket hang up');
+      return [{ title: `${t.name} intro`, url: `https://example.com/${t.id}`, snippet: 'Free intro' }];
+    };
+
+    const outcomes = await fetchDiscoveryCandidates(topics, searchFn);
+    expect(outcomes[0].results).toBeNull();
+    expect(outcomes[0].error).toContain('socket hang up');
+    expect(outcomes[1].results).toHaveLength(1);
+
+    const wb = emptyWorkbook();
+    wb.topics = topics;
+    const { alerts } = applyDiscoveryResults(wb, outcomes, new Date('2026-08-01'));
+
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0].topic.id).toBe('t1');
+    expect(wb.searchRuns.find((r) => r.topicId === 't1')?.status).toBe('FAILED');
+    expect(wb.searchRuns.find((r) => r.topicId === 't2')?.status).toBe('SUCCESS');
+    expect(wb.discoveredItems).toHaveLength(1);
+  });
+
+  it('dedupes across topics within a single apply phase', async () => {
+    const searchFn = async () => [
+      { title: 'Shared listing', url: 'https://example.com/shared', snippet: 'Free intro' },
+    ];
+
+    const outcomes = await fetchDiscoveryCandidates(topics, searchFn);
+    const wb = emptyWorkbook();
+    wb.topics = topics;
+    applyDiscoveryResults(wb, outcomes, new Date('2026-08-01'));
+
+    expect(wb.discoveredItems).toHaveLength(1);
+    expect(wb.searchRuns.find((r) => r.topicId === 't2')?.itemsAdded).toBe(0);
   });
 });
