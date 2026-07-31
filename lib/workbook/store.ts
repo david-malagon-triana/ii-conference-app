@@ -94,13 +94,22 @@ export async function loadWorkbook(filePath: string): Promise<Workbook> {
   await wb.xlsx.readFile(filePath);
   const result = emptyWorkbook();
 
-  for (const { name } of SHEETS) {
+  for (const { name, header } of SHEETS) {
     const sheet = wb.getWorksheet(name);
     if (!sheet) continue;
     const rows: any[] = [];
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) return;
-      const cells = (row.values as any[]).slice(1).map((v) => (v === undefined || v === null ? '' : String(v)));
+      // `row.values` is 1-indexed (index 0 is unused) and *sparse*: exceljs leaves an array
+      // hole where a cell was written as `undefined`. `Array.prototype.map` skips holes, which
+      // would leave `undefined` in the normalized cells and let it reach the typed row objects
+      // (e.g. a `description` of `undefined`, which then blows up `.toLowerCase()` on read).
+      // Building the array positionally by header length treats a hole exactly like an empty cell.
+      const values = row.values as any[];
+      const cells = Array.from({ length: header.length }, (_, i) => {
+        const v = values[i + 1];
+        return v === undefined || v === null ? '' : String(v);
+      });
       rows.push(rowToObject(name, cells));
     });
     (result as any)[name] = rows;
