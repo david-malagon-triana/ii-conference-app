@@ -93,13 +93,13 @@ export default function CatalogModerationPage() {
             <span className="flex gap-2 shrink-0">
               <button
                 onClick={() => (editingId === item.id ? setEditingId(null) : startEdit(item))}
-                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
+                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-light-blue hover:bg-invent-light-blue/10"
               >
                 {editingId === item.id ? 'Close' : 'Edit'}
               </button>
               <button
                 onClick={() => patch(item.id, { active: !item.active })}
-                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
+                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-light-blue hover:bg-invent-light-blue/10"
               >
                 {item.active ? 'Hide' : 'Unhide'}
               </button>

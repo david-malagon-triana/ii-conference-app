@@ -107,7 +107,7 @@ export default function TopicsPage() {
             <span className="flex gap-2 shrink-0">
               <button
                 onClick={() => (editingId === t.id ? setEditingId(null) : startEdit(t))}
-                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
+                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-light-blue hover:bg-invent-light-blue/10"
               >
                 {editingId === t.id ? 'Close' : 'Edit'}
               </button>
