@@ -63,6 +63,70 @@ describe('CatalogModerationPage', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
+  it('hides an active item via the Hide button', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [activeItem] }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ item: { ...activeItem, active: false } }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [{ ...activeItem, active: false }] }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+
+    render(<CatalogModerationPage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Hide' })).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Hide' }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/admin/catalog/1',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ passcode: '', updates: { active: false } }),
+      }),
+    ));
+  });
+
+  it('successfully edits an item and closes the edit form on success', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ items: [activeItem] }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ item: { ...activeItem, tier: 'EXPERT', priceStatus: 'PAID', startDate: '2026-10-01' } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ items: [{ ...activeItem, tier: 'EXPERT', priceStatus: 'PAID', startDate: '2026-10-01' }] }),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+
+    render(<CatalogModerationPage />);
+    await waitFor(() => expect(screen.getByText(/Gen AI Fundamentals/)).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+    const [tierSelect, priceSelect] = screen.getAllByRole('combobox');
+    await user.selectOptions(tierSelect, 'EXPERT');
+    await user.selectOptions(priceSelect, 'PAID');
+    const dateInput = screen.getByPlaceholderText('2026-09-12');
+    await user.clear(dateInput);
+    await user.type(dateInput, '2026-10-01');
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/admin/catalog/1',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({
+          passcode: '',
+          updates: { tier: 'EXPERT', priceStatus: 'PAID', startDate: '2026-10-01' },
+        }),
+      }),
+    ));
+    // Edit form closed on success — the Save button is no longer present.
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument());
+  });
+
   it('deletes an item after confirmation', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     const fetchMock = vi.fn()

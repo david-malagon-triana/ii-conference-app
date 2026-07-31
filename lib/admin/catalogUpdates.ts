@@ -80,7 +80,16 @@ export function applyCatalogUpdates(
       continue;
     }
     const value = raw === null ? '' : raw;
-    normalized[field] = NULLABLE_FIELDS.has(field) && value.trim() === '' ? null : value;
+    const trimmed = value.trim();
+
+    if ((field === 'startDate' || field === 'endDate') && trimmed !== '') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed) || !Number.isFinite(Date.parse(trimmed))) {
+        rejected.push(field);
+        continue;
+      }
+    }
+
+    normalized[field] = NULLABLE_FIELDS.has(field) && trimmed === '' ? null : value;
   }
 
   if (rejected.length > 0) {

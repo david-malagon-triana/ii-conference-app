@@ -38,4 +38,42 @@ describe('SettingsPage', () => {
 
     await waitFor(() => expect(screen.getByText('Invalid passcode')).toBeInTheDocument());
   });
+
+  it('saves systemAlertEmail and shows a confirmation', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+    const [, systemAlertEmailInput] = screen.getAllByRole('textbox');
+    await user.type(systemAlertEmailInput, 'lead@capgemini.com');
+    await user.click(screen.getAllByRole('button', { name: 'Save' })[1]);
+
+    await waitFor(() => expect(screen.getByText('Saved systemAlertEmail')).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/settings',
+      expect.objectContaining({
+        body: JSON.stringify({ passcode: undefined, key: 'systemAlertEmail', value: 'lead@capgemini.com' }),
+      }),
+    );
+  });
+
+  it('saves adminPasscode and shows a confirmation', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+
+    render(<SettingsPage />);
+    const [, , adminPasscodeInput] = screen.getAllByRole('textbox');
+    await user.type(adminPasscodeInput, 'newpasscode');
+    await user.click(screen.getAllByRole('button', { name: 'Save' })[2]);
+
+    await waitFor(() => expect(screen.getByText('Saved adminPasscode')).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/settings',
+      expect.objectContaining({
+        body: JSON.stringify({ passcode: undefined, key: 'adminPasscode', value: 'newpasscode' }),
+      }),
+    );
+  });
 });

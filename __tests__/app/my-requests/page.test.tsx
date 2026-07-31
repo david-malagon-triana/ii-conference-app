@@ -35,6 +35,7 @@ describe('MyRequestsPage', () => {
     expect(screen.getByText('Your PM (John Smith) was notified.')).toBeInTheDocument();
     expect(screen.getByText('Free Webinar')).toBeInTheDocument();
     expect(screen.getByText('Noted — attending.')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(`/api/my-requests?email=${encodeURIComponent('jane@capgemini.com')}`);
   });
 
   it('shows the empty-results state distinctly from not-yet-searched', async () => {

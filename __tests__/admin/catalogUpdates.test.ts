@@ -107,6 +107,37 @@ describe('applyCatalogUpdates', () => {
     expect(target.location).toBe('');
   });
 
+  it('rejects a malformed (non-ISO) startDate like "01/09/2026"', () => {
+    const target = item();
+    const { applied, rejected } = applyCatalogUpdates(target, { startDate: '01/09/2026' });
+
+    expect(applied).toEqual([]);
+    expect(rejected).toEqual(['startDate']);
+    expect(target.startDate).toBe('2026-09-12');
+  });
+
+  it('rejects a syntactically-ISO-shaped but invalid calendar date like "2026-13-45"', () => {
+    const target = item();
+    const { applied, rejected } = applyCatalogUpdates(target, { endDate: '2026-13-45' });
+
+    expect(applied).toEqual([]);
+    expect(rejected).toEqual(['endDate']);
+    expect(target.endDate).toBeNull();
+  });
+
+  it('accepts a valid ISO date for both startDate and endDate', () => {
+    const target = item();
+    const { applied, rejected } = applyCatalogUpdates(target, {
+      startDate: '2026-09-12',
+      endDate: '2026-09-12',
+    });
+
+    expect(rejected).toEqual([]);
+    expect(applied.sort()).toEqual(['endDate', 'startDate']);
+    expect(target.startDate).toBe('2026-09-12');
+    expect(target.endDate).toBe('2026-09-12');
+  });
+
   it('is a no-op for a missing or non-object payload', () => {
     const target = item();
     expect(applyCatalogUpdates(target, undefined)).toEqual({ applied: [], rejected: [] });
