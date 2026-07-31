@@ -13,6 +13,7 @@ export interface ReportingStats {
 
 function weekStartKey(isoDateString: string): string {
   const d = new Date(isoDateString);
+  if (Number.isNaN(d.getTime())) return '';
   const day = d.getUTCDay(); // 0 (Sun) .. 6 (Sat)
   const diffToMonday = day === 0 ? -6 : 1 - day;
   const monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + diffToMonday));
@@ -71,6 +72,7 @@ export function computeReportingStats(wb: Workbook): ReportingStats {
   const interestTrendByWeek: Record<string, number> = {};
   for (const request of wb.interestRequests) {
     const week = weekStartKey(request.createdAt);
+    if (!week) continue;
     interestTrendByWeek[week] = (interestTrendByWeek[week] ?? 0) + 1;
   }
 

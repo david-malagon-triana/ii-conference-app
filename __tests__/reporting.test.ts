@@ -116,4 +116,18 @@ describe('computeReportingStats — interestTrendByWeek', () => {
 
     expect(stats.interestTrendByWeek).toEqual({ '2026-08-03': 2, '2026-08-10': 1 });
   });
+
+  it('silently skips interest requests with an unparseable createdAt instead of throwing', () => {
+    const wb = emptyWorkbook();
+    wb.discoveredItems = [item({ id: '1' })];
+    wb.interestRequests = [
+      request({ id: 'r1', createdAt: '' }),
+      request({ id: 'r2', createdAt: 'not-a-date' }),
+      request({ id: 'r3', createdAt: '2026-08-05T10:00:00.000Z' }),
+    ];
+
+    expect(() => computeReportingStats(wb)).not.toThrow();
+    const stats = computeReportingStats(wb);
+    expect(stats.interestTrendByWeek).toEqual({ '2026-08-03': 1 });
+  });
 });
