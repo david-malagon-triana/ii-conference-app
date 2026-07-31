@@ -16,7 +16,7 @@ const TIER_CLASSES: Record<Tier, string> = {
 
 export function TierBadge({ tier }: { tier: Tier }) {
   return (
-    <span className={`inline-block text-xs px-2 py-0.5 rounded-full ${TIER_CLASSES[tier]}`}>
+    <span className={`self-start inline-block text-xs px-2 py-0.5 rounded-full ${TIER_CLASSES[tier]}`}>
       {TIER_LABELS[tier]}
     </span>
   );

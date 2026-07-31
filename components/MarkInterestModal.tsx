@@ -47,7 +47,14 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
 
   return (
     <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-50">
-      <div className="bg-invent-grey1 text-invent-dark-blue rounded-xl p-5 w-72">
+      <div className="relative bg-invent-grey1 text-invent-dark-blue rounded-xl p-5 w-72">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-xs text-slate-500 transition-colors duration-180 hover:text-invent-dark-blue"
+          aria-label="Close"
+        >
+          &times;
+        </button>
         <p className="font-serif text-base mb-1">Mark interest</p>
         <p className="text-xs text-slate-600 mb-3">{item.title}</p>
 
@@ -107,14 +114,6 @@ export function MarkInterestModal({ item, onClose }: { item: DiscoveredItemRow; 
             </div>
           </>
         )}
-        {/* Always available: after a successful submission this is the only way out of the modal. */}
-        <button
-          onClick={onClose}
-          className="text-xs text-slate-500 mt-2 block transition-colors duration-180 hover:text-invent-grey1"
-          aria-label="Close"
-        >
-          &times;
-        </button>
       </div>
     </div>
   );
