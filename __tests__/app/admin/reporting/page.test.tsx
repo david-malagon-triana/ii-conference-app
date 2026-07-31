@@ -104,6 +104,12 @@ describe('ReportingPage', () => {
     expect(screen.getAllByText('No interest requests yet.')).toHaveLength(2); // topic-interest section + trend section
     expect(screen.getByText('No catalog items yet.')).toBeInTheDocument();
     expect(screen.queryByTestId('top-items-chart')).not.toBeInTheDocument();
+
+    // priceSplit and tierDistribution always have 3/4 entries present (just zero-valued),
+    // so unlike the array-based metrics above, these charts must still render rather than
+    // falling back to an empty-state message.
+    expect(screen.getByTestId('price-split-chart')).toBeInTheDocument();
+    expect(screen.getByTestId('tier-distribution-chart')).toBeInTheDocument();
   });
 
   it('shows an error message on a failed fetch instead of hanging on "Loading..."', async () => {
