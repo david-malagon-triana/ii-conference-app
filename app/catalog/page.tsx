@@ -53,7 +53,7 @@ function CatalogContent() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">Catalog</p>
+      <p className="font-serif text-xl mb-3">Catalog</p>
       <FilterBar topics={topics} values={values} onChange={setValues} />
       <div className="grid grid-cols-3 gap-3">
         {items.map((item) => (
