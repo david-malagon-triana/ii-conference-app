@@ -12,7 +12,11 @@ export default function AdminHome() {
   return (
     <div className="grid grid-cols-2 gap-3">
       {links.map((l) => (
-        <Link key={l.href} href={l.href} className="border border-slate-700 rounded-lg p-4 text-sm">
+        <Link
+          key={l.href}
+          href={l.href}
+          className="border border-slate-700 rounded-lg p-4 text-sm transition-colors duration-180 hover:border-invent-light-blue hover:bg-invent-light-blue/5"
+        >
           {l.label}
         </Link>
       ))}

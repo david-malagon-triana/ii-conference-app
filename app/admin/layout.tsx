@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!unlocked) {
     return (
       <div className="max-w-xs mx-auto mt-10">
-        <p className="text-sm mb-2">Admin passcode</p>
+        <p className="font-serif text-lg mb-2">Admin passcode</p>
         <input
           type="password"
           value={passcode}
@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
         <button
           onClick={enter}
-          className="w-full bg-invent-blue text-invent-grey1 rounded py-1.5 text-sm"
+          className="w-full rounded py-1.5 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
         >
           Enter
         </button>
