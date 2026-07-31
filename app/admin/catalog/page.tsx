@@ -76,7 +76,7 @@ export default function CatalogModerationPage() {
 
   return (
     <div>
-      <p className="text-base font-normal mb-3">Catalog moderation</p>
+      <p className="font-serif text-xl mb-3">Catalog moderation</p>
       <p className="text-xs text-invent-grey4 mb-3">
         Lists every catalog item, active and hidden. Hide/unhide is reversible; edit corrects the
         classifier&apos;s guesses at tier, price and start date; delete removes the item permanently.
@@ -93,19 +93,19 @@ export default function CatalogModerationPage() {
             <span className="flex gap-2 shrink-0">
               <button
                 onClick={() => (editingId === item.id ? setEditingId(null) : startEdit(item))}
-                className="text-xs border rounded px-2 py-1"
+                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
               >
                 {editingId === item.id ? 'Close' : 'Edit'}
               </button>
               <button
                 onClick={() => patch(item.id, { active: !item.active })}
-                className="text-xs border rounded px-2 py-1"
+                className="text-xs border rounded px-2 py-1 transition-colors duration-180 hover:border-invent-blue hover:bg-invent-blue/10"
               >
                 {item.active ? 'Hide' : 'Unhide'}
               </button>
               <button
                 onClick={() => removeItem(item.id, item.title)}
-                className="text-xs border border-invent-orange text-invent-orange rounded px-2 py-1"
+                className="text-xs border border-invent-orange text-invent-orange rounded px-2 py-1 transition-colors duration-180 hover:bg-invent-orange/10"
               >
                 Delete
               </button>
@@ -153,7 +153,7 @@ export default function CatalogModerationPage() {
               </label>
               <button
                 onClick={() => saveEdit(item.id)}
-                className="border border-invent-blue rounded px-3 py-1 text-sm"
+                className="rounded px-3 py-1 text-sm text-invent-grey1 bg-gradient-to-r from-invent-blue to-invent-light-blue transition-all duration-150 hover:brightness-125 hover:saturate-150 hover:scale-[1.02]"
               >
                 Save
               </button>
